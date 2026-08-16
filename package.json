@@ -1,0 +1,57 @@
+{
+  "name": "dsh-mobile",
+  "version": "1.0.0",
+  "description": "Use DeepSeek Harness from your phone: a LAN phone-connect bridge (QR pairing + desktop approval + mobile DSH client), with a phone entry in the web GUI settings row and a connected status dot.",
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "lan-bridge.mjs",
+    "pages.mjs",
+    "scripts",
+    "README.md",
+    "AGENTS.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "scripts": {
+    "check": "node --check lib/index.js && node --check lib/client.js && node --check lan-bridge.mjs && node --check scripts/test-bridge.mjs",
+    "test": "node scripts/test-bridge.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s17179XTY/dsh-mobile.git"
+  },
+  "homepage": "https://github.com/s17179XTY/dsh-mobile#readme",
+  "bugs": "https://github.com/s17179XTY/dsh-mobile/issues",
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "phone",
+    "mobile",
+    "lan",
+    "remote-access",
+    "pairing",
+    "qr"
+  ]
+}

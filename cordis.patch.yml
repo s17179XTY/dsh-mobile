@@ -1,0 +1,16 @@
+# dsh-mobile profile patch layer — insert one loader entry for the plugin
+# package (server half = LAN phone-connect bridge manager; browser half =
+# the settings-row phone entry + pairing dialog, picked up through the
+# package's dsh.client declaration).
+#
+# Install with:
+#   dsh plugin --profile web add https://github.com/s17179XTY/dsh-mobile
+#
+# ⚠ SECURITY: while enabled, the bridge listens on the LAN (random port) and
+#   serves a mobile DSH client. A phone can only connect after scanning the
+#   QR code AND being approved on the desktop, and the mobile client is
+#   restricted to an allowlisted RPC subset — but only keep this enabled on a
+#   network you trust, and remove the row when you do not need phone access.
+- insert:
+    - id: dsh-mobile
+      name: dsh-mobile
