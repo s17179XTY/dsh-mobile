@@ -61,6 +61,11 @@ Three runtimes coexist here — keep them straight:
   has a registration at priority 0 ... register at a different priority to
   shadow it`). Lowest priority renders; removal of the plugin restores the
   shipped trigger untouched.
+- Snapshot field contract: the **bridge's** `/desktop/snapshot` reports
+  liveness as `running: true`; the **host's** `/phone-connect/bridge` route
+  reports `status: "running"`. The client must accept BOTH
+  (`snap.status === "running" || snap.running === true`) — mixing them up
+  makes the dialog permanently show the "bridge stopped" state.
 
 ## Testing
 

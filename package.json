@@ -1,6 +1,6 @@
 {
   "name": "dsh-mobile",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Use DeepSeek Harness from your phone: a LAN phone-connect bridge (QR pairing + desktop approval + mobile DSH client), with a phone entry in the web GUI settings row and a connected status dot.",
   "license": "MIT",
   "type": "module",
