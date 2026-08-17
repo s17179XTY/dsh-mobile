@@ -141,6 +141,27 @@ Phone…" item natively). For that case the plugin provides the
 - **Keep it on a network you trust.** Remove the `dsh-mobile` row from
   `cordis.patch.yml` (or uninstall) when you do not need phone access.
 
+## Troubleshooting
+
+- **Dialog stuck on "桥已停止，正在自动重试…" (bridge stopped, retrying).**
+  Refresh the page first. If it persists, verify the bridge is actually up:
+  `GET /phone-connect/bridge` on the harness origin should return
+  `{"status":"running", ..., "port": <n>}`; the bridge's own
+  `http://127.0.0.1:<port>/desktop/snapshot` should return
+  `{"running": true, ...}`. The dialog accepts both liveness fields.
+- **The browser tab no longer shows the plugin.** The web shell picks a
+  random port on each start, so a hand-opened tab keeps pointing at a dead
+  port. Reopen the current harness URL (desktop shells reopen their own
+  window automatically).
+- **Pairing URL says "invalid or expired".** The token lives 30 minutes and
+  is only rotated when actually expired — a copied URL stays usable for its
+  full lifetime. A URL from an older rotation (or before a plugin update
+  restarted the bridge) is intentionally dead; open the dialog to get a
+  fresh one.
+- **Bridge keeps restarting.** The host auto-restarts a crashed bridge up to
+  5 times (3 s apart); the `error` field of `/phone-connect/bridge` carries
+  the last exit reason and stderr tail.
+
 ## Configuration
 
 - `--locale zh|en` and `--app-name` are passed to the bridge by the host; the

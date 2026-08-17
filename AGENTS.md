@@ -67,6 +67,27 @@ Three runtimes coexist here — keep them straight:
   (`snap.status === "running" || snap.running === true`) — mixing them up
   makes the dialog permanently show the "bridge stopped" state.
 
+## Operational notes (real deployments)
+
+- **`file:` installs copy, not link.** When a profile installs this package
+  as a `file:` dependency (e.g. during local testing), pnpm copies the
+  directory into the profile's `node_modules` — edits in the source tree do
+  NOT propagate. After changing `lib/client.js` or `lib/index.js`, copy the
+  changed files into the installed package (or re-run `dsh plugin
+  --profile web add file:<path>`) and refresh the harness page. The harness
+  serves the client bundle from disk, so a refresh picks the change up; a
+  full harness restart is only needed if the composition changed.
+- **This repo ships the static profile package only.** The Cordis dynamic
+  plugin variant (used for quick GUI trials, process-local, approval-gated)
+  is a separate artifact and is NOT maintained here — keep fixes in
+  `lib/*.js` / `lan-bridge.mjs` and, when relevant, port them to the dynamic
+  variant's code (the dynamic host snapshot uses `status`, the bridge uses
+  `running` — see the field contract above).
+- **Harness port changes on every shell start** (random port). The host
+  derives the harness URL from `webServer.port` at spawn time, so the bridge
+  follows automatically; hand-opened browser tabs do not. This is expected
+  shell behavior, not a plugin bug.
+
 ## Testing
 
 ```bash
