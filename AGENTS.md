@@ -54,6 +54,13 @@ Three runtimes coexist here — keep them straight:
   the phone entry replaces the shipped trigger content, so it must replicate
   the gear + label and preserve the row's click-to-open-settings behavior
   (`stopPropagation` on the phone control only).
+- `settings.trigger` MUST be registered with an explicit `priority: -1`.
+  Static plugins do not receive the automatic shadowing priority that
+  dynamic plugin runs get, so registering at the default priority 0 collides
+  with the shipped settings shell (`single slot "settings.trigger" already
+  has a registration at priority 0 ... register at a different priority to
+  shadow it`). Lowest priority renders; removal of the plugin restores the
+  shipped trigger untouched.
 
 ## Testing
 
