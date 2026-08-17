@@ -1,12 +1,20 @@
-# dsh-mobile
+# dsh-mobile — Phone Connect for DeepSeek Harness
 
-Use **DeepSeek Harness** from your phone. `dsh-mobile` adds the official-style
-**phone connect** experience to the DSH web GUI: a LAN pairing bridge, a
-mobile-optimized DSH client for your phone, and a phone entry in the settings
-row of the desktop UI — a faithful port of the [dsh-desktop](https://github.com/dataelement/dsh-desktop)
-phone-connect feature.
+`dsh-mobile` is a **DeepSeek Harness (DSH) plugin** that brings the official
+phone-connect experience to any DSH web profile: a LAN pairing bridge, a
+mobile-optimized DSH client for your phone, and a phone entry in the
+settings row of the web GUI. It is a faithful port of the
+[dsh-desktop](https://github.com/dataelement/dsh-desktop) phone-connect
+feature.
 
-手机连接 DSH 的官方体验：局域网配对桥 + 手机端 DSH 客户端 + 桌面端「连接手机」入口（dsh-desktop phone connect 的忠实移植）。
+**This plugin is built for DeepSeek Harness, not for any specific shell
+app.** It works in every deployment that runs a DSH web profile — plain
+`dsh web` from the CLI, Bigfish, DSH Desktop-style desktop shells, or any
+other wrapper. It contains no Bigfish- or DSH Desktop-specific code.
+
+`dsh-mobile` 是面向 **DeepSeek Harness 本体** 的插件：任何运行 DSH web profile
+的部署（命令行 `dsh web`、Bigfish、类 DSH Desktop 的桌面壳、或任何封装）都可以
+安装使用，不绑定任何特定应用。
 
 ## Features
 
@@ -33,7 +41,7 @@ Phone ──HTTP──▶ lan-bridge.mjs (LAN, random port)
                     │   client-request envelope)
                     ▼
 Harness web UI ──▶ /phone-connect/bridge  (host plugin, same-origin)
-                    │  bridge snapshot: port/status/connected
+                    │  bridge snapshot: port/status/connected/desktopUrl
                     ▼
                 /desktop* loopback endpoints (CORS for the GUI origin)
 ```
@@ -45,9 +53,11 @@ Harness web UI ──▶ /phone-connect/bridge  (host plugin, same-origin)
 | Host plugin | `lib/index.js` | Spawns/monitors the bridge (auto-restart, capped), exposes `/phone-connect/bridge` + `/phone-connect/config`. |
 | Client plugin | `lib/client.js` | `__ModuleLoader__` bundle: settings-row phone entry (green dot), pairing dialog, copy/countdown/approve UI. |
 
-## Install
+## Install (安装)
 
-Requires a DeepSeek Harness web profile.
+Requires a **DeepSeek Harness web profile** (any deployment — the profile
+mechanism is core DSH, so this works on plain `dsh web`, Bigfish, desktop
+shells that mount a web profile, etc.).
 
 ```bash
 dsh plugin --profile web add https://github.com/s17179XTY/dsh-mobile
@@ -57,6 +67,51 @@ dsh plugin --profile web add https://github.com/s17179XTY/dsh-mobile
 Then restart the harness (or re-boot the profile) so the `cordis.patch.yml`
 row mounts. The package depends on `qrcode`, installed automatically by the
 profile's package manager.
+
+## Shell integration (壳侧整合)
+
+"Shell" here means the app that hosts the harness around the web profile. The
+plugin integrates with the shell at two levels:
+
+### 1. Web GUI shell — built in (无需额外工作)
+
+The plugin's browser half registers into the web profile's own slot system:
+the **settings-row phone entry** (with the connected-status dot) and the
+**pairing dialog** appear in any DSH web GUI automatically. A browser-only
+deployment needs nothing else.
+
+### 2. Native desktop shells — integration hook provided by the plugin
+
+For a desktop shell with its own chrome (e.g., a DSH Desktop-style Electron
+app), the shell can add a native entry — a **"Connect Phone…" menu item or
+tray action** — that opens the bridge's desktop pairing page:
+
+- The host plugin publishes the bridge snapshot at `GET /phone-connect/bridge`,
+  including `desktopUrl` (`http://127.0.0.1:<port>/desktop`, loopback-only).
+- That page is the full pairing/manage UI (QR, auto-refresh, approve/deny,
+  disconnect) — exactly what dsh-desktop shows in its own Electron window.
+- A shell can therefore discover the URL with one same-origin HTTP call and
+  open it in a small window — **no configuration, no credentials**.
+
+```
+Shell (native chrome) ──GET /phone-connect/bridge──▶ desktopUrl
+        │                                              │
+        └──── open http://127.0.0.1:<port>/desktop ◀───┘   (loopback-only page)
+```
+
+### Can DeepSeek Harness do this? / DeepSeek Harness 能做到吗？
+
+**Yes.** Every runtime piece the plugin needs is core DeepSeek Harness
+capability available to any profile: the profile-plugin mechanism
+(`cordis.patch.yml` + `dsh plugin add`), `webServer` route registration,
+the `subprocess` service, the standalone LAN bridge, and the browser-side
+slot system. Nothing in this plugin depends on a particular shell app.
+
+The **one** thing a plugin cannot do from inside the harness is inject native
+menu items into a desktop shell's own menu bar — that chrome belongs to the
+shell's code (it is exactly how dsh-desktop ships its "Harness → Connect
+Phone…" item natively). For that case the plugin provides the
+`desktopUrl` hook above, and the shell wires a menu/tray item to it.
 
 ## Usage
 
